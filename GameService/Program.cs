@@ -21,7 +21,6 @@ namespace GameService
                 ContentRootPath = AppDomain.CurrentDomain.BaseDirectory,
             });
 
-
             Console.WriteLine($"OS Version : {System.Environment.OSVersion}");
             Console.WriteLine($"Environment:{System.Environment.UserName}");
 
@@ -32,6 +31,10 @@ namespace GameService
             builder.Services.AddSingleton<IDbAccessService, DbAccessService>();
             builder.Services.AddSingleton<ISessionService, SessionService>();
             builder.Services.AddControllers();
+
+
+            builder.Logging.ClearProviders();
+            //builder.Logging.AddZLoggerConsole();
 
             var app = builder.Build();
 

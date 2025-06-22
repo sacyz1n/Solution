@@ -5,7 +5,7 @@ VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameService", "GameService\GameService.csproj", "{C769A590-19F5-461F-9674-16C8161BDAC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{1CD31C74-D6A0-42AF-809E-711786DA1B18}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Database\Repository.csproj", "{1CD31C74-D6A0-42AF-809E-711786DA1B18}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileResource", "FileResource\FileResource.csproj", "{7339B8DC-E4B3-485C-92FC-9779A02EAF59}"
 EndProject

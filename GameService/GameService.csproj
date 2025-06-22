@@ -8,9 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Database\Database.csproj" />
     <ProjectReference Include="..\FileResource\FileResource.csproj" />
     <ProjectReference Include="..\Server.Shared\Server.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Middleware\" />
   </ItemGroup>
 
 </Project>
