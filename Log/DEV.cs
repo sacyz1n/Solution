@@ -17,8 +17,6 @@ namespace Log
             if (condition)
                 return;
 
-
-
         }
     }
 }

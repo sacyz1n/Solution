@@ -1,27 +1,16 @@
-﻿using Log.NetNotifiers;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZLogger;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Log
 {
-    public class NetNotifyLogger : ILogger
+    public class NotifyLogger : ILogger
     {
         private readonly string _categoryName;
 
-        private readonly ILogger _innerLogger;
+        private readonly INotifiication _netNotification;
 
-        private readonly INetNotifiication _netNotification;
-
-
-        public NetNotifyLogger(string categoryName, ILogger innerLogger, INetNotifiication netNotification)
+        public NotifyLogger(string categoryName, INotifiication netNotification)
         {
             _categoryName = categoryName ?? throw new ArgumentNullException(nameof(categoryName));
-            _innerLogger = innerLogger ?? throw new ArgumentNullException(nameof(innerLogger));
             _netNotification = netNotification ?? throw new ArgumentNullException(nameof(netNotification));
         }
 
@@ -29,12 +18,10 @@ namespace Log
             => null;
 
         public bool IsEnabled(LogLevel logLevel)
-            => true;
+            => logLevel >= LogLevel.Critical;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            _innerLogger.Log(logLevel, eventId, state, exception, formatter);
-
             _netNotification.SendNotification(formatter(state, exception));
         }
     }

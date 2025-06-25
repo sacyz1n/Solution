@@ -1,14 +1,6 @@
-﻿using Log.NetNotifiers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 
-namespace Log.NetNotifications
+namespace Log
 {
     /// <summary>
     /// 텔레그램 봇 관련 API Document Url : https://core.telegram.org/bots/api
@@ -18,14 +10,14 @@ namespace Log.NetNotifications
     /// - /newbot (새 봇 생성)
     /// - /setprivacy disable 설정 (그룹 채팅을 받을 수 있도록 설정)
     /// </summary>
-    public class TelegramNotification : INetNotifiication
+    public class TelegramNotification : INotifiication
     {
         private HttpClient _httpClient = null;
 
         // Telegram Bot Token
         private readonly string _botToken = $"8052627830:AAHN_kyYnTyZeWG3zpPIDarbDtxXgoByMc4";
 
-        private readonly string _chatId = string.Empty;
+        private readonly string _chatId = $"-1002702140444";
         // DEV_T1_BOT
         // 8052627830:AAGs9_x8E3kcf3OVItDZUp-8PZoWbziZSe4
 
