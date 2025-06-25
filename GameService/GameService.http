@@ -1,0 +1,17 @@
+@baseUrl http://localhost:5047
+
+### Health Check
+
+GET {{baseUrl}}/
+Accept: application/json
+
+### 로그인 요청
+
+POST {{baseUrl}}/login
+Accept: application/json
+Content-Type: application/json
+{
+
+}
+
+

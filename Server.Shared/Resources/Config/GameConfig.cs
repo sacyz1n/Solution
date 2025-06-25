@@ -4,7 +4,7 @@ namespace Server.Shared.Resources.Config
 {
     public class GameConfig : FileResource.IRecordSingle, FileResource.Loader.IDataProcessing
     {
-        //[JsonInclude] public 
+        //[JsonInclude] public int 
 
         public void PostProcess()
         {

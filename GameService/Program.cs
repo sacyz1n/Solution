@@ -1,5 +1,9 @@
+using GameService.Formatters;
 using GameService.Services;
+using Log.NetNotifications;
 using Server.Shared.Services;
+using ZLogger;
+using ZLogger.Providers;
 
 namespace GameService
 {
@@ -30,11 +34,31 @@ namespace GameService
             builder.Services.AddSingleton<IFileResourceService, FileResourceService>();
             builder.Services.AddSingleton<IDbAccessService, DbAccessService>();
             builder.Services.AddSingleton<ISessionService, SessionService>();
+            builder.Services.AddControllers(options =>
+            {
+                options.OutputFormatters.Insert(0, new MemoryPackOutputFormatter());
+                options.InputFormatters.Insert(0, new MemoryPackInputFormatter());
+            });
             builder.Services.AddControllers();
 
-
             builder.Logging.ClearProviders();
-            //builder.Logging.AddZLoggerConsole();
+            //builder.Logging.AddZLoggerRollingFile(configure => 
+            //{
+            //    configure.FilePathSelector = (now, _) => $"./logs/{now:yyyyMMdd}.log";
+            //    configure.RollingInterval = RollingInterval.Day;
+            //    configure.RollingSizeKB = 1024 * 1024; // 1GB
+
+            //    configure.UseFormatter(() => new Log.ZLoggerFormatter());
+            //});
+
+            var options = new ZLoggerRollingFileOptions()
+            {
+                FilePathSelector = (now, index) => $"{Environment.CurrentDirectory}/logs/{now:yyyyMMdd}_{index}.log",
+                RollingInterval = RollingInterval.Day,
+                RollingSizeKB = 1024 * 1024, // 1GB  
+            };
+            options.UseFormatter(() => new Log.ZLoggerFormatter());
+            builder.Logging.AddProvider(new Log.ZLoggerNetProvider(new ZLoggerRollingFileLoggerProvider(options), new TelegramNotification()));
 
             var app = builder.Build();
 

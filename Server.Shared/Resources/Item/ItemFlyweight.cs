@@ -16,6 +16,7 @@ namespace Server.Shared.Resources.Item
         [JsonInclude] public int ItemIndex { get; set; } = 0;
         [JsonInclude] public string ItemName { get; set; } = string.Empty;
 
+        [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
         public abstract class ItemDataRecord
         {
             //public virtual E_ItemType 

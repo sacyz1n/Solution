@@ -1,4 +1,5 @@
-﻿using GameService.Services;
+﻿using Client.Shared;
+using GameService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,5 +31,18 @@ namespace GameService.Controllers
         public IActionResult Index()
             => Ok(new { Info = $"GameService is running. {DateTime.Now}" });
 
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("/login")]
+        public LoginResponse Login([FromBody] LoginRequest input)
+        {
+            var output = new LoginResponse();
+            _logger.LogInformation("Login request received");
+
+            
+
+            return output;
+        }
     }
 }

@@ -13,17 +13,25 @@ namespace FileResource
             void PostProcess();
         }
 
+        private static Action<Exception> _exceptionHandler = null;
+
         private static List<IDataProcessing> _dataProcessingList = new();
 
         private static JsonSerializerOptions _jsonSerializerOptions = new()
         {
-
+            
         };
+
+        public static void SetExceptionHandler(Action<Exception> exceptionAction)
+            => _exceptionHandler = exceptionAction;
+
+        private static void handleException(Exception exception)
+            => _exceptionHandler?.Invoke(exception);
 
         /// <summary>
         /// 단일 레코드를 로드하는 메서드입니다.
         /// </summary>
-        public static bool LoadSingleTable<T>(string filePath) where T : IDataProcessing, IRecordSingle, new()
+        public static bool LoadSingleTable<T>(string filePath) where T : class, IDataProcessing, IRecordSingle, new()
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"[LoadSingleTable] File path cannot be null or empty. FilePath:{filePath}");
@@ -35,24 +43,22 @@ namespace FileResource
                     var obj = JsonSerializer.Deserialize<T>(reader.BaseStream, _jsonSerializerOptions);
                     if (obj == null)
                     {
-                        //LastException = new Exception("[LoadFromOneJson] JsonSerializer.Deserialize is null");
-                        //errorHandler?.Invoke(LastException);
+                        handleException(new Exception("[LoadSingleTable] JsonSerializer.Deserialize is null"));
                         return false;
                     }
 
-                    //Storage.SaveToTables(obj, obj.Key, name);
+                    Storage.SaveRecord(obj);
                     return true;
                 }
             }
             catch (Exception e)
             {
-                //LastException = e;
-                //errorHandler?.Invoke(e);
+                handleException(e);
                 return false;
             }
         }
 
-        public static bool LoadArrayTable<T>(string filePath) where T : IDataProcessing, IRecordSingle, new()
+        public static bool LoadArrayTable<T>(string filePath) where T : class, IDataProcessing, IRecordSingle, new()
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"[LoadArrayTable] File path cannot be null or empty. FilePath:{filePath}");
@@ -79,7 +85,7 @@ namespace FileResource
             }
         }
 
-        public static bool LoadListTable<TList, TData>(string listFilePath, string dataFilePath) where TData : IDataProcessing, IRecordWithIntegerKey, new()
+        public static bool LoadListTable<TList, TData>(string listFilePath, string dataFilePath) where TData : class, IDataProcessing, IRecordWithIntegerKey, new()
         {
             if (string.IsNullOrWhiteSpace(listFilePath))
                 throw new ArgumentException($"[LoadListTable] File path cannot be null or empty. FilePath:{listFilePath}");
