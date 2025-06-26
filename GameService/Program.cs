@@ -42,7 +42,10 @@ namespace GameService
             builder.Services.AddControllers();
 
             builder.Logging.ClearProviders();
-            builder.Logging.AddNotifyLogger(new TelegramNotification());
+            builder.Logging.AddZLoggerConsole(configure =>
+            {
+                configure.UseFormatter(() => new Log.ZLoggerFormatter());
+            });
             builder.Logging.AddZLoggerRollingFile(configure =>
             {
                 configure.FilePathSelector = (now, index) => $"{Environment.CurrentDirectory}/logs/{now:yyyyMMdd}_{index}.log";
@@ -50,6 +53,7 @@ namespace GameService
                 configure.RollingSizeKB = 1024 * 1024; // 1GB
                 configure.UseFormatter(() => new Log.ZLoggerFormatter());
             });
+            builder.Logging.AddNotifyLogger(new TelegramNotification());
 
             var app = builder.Build();
 
@@ -60,6 +64,10 @@ namespace GameService
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            // Global logger 설정
+            var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+            LogManager.SetLoggerFactory(loggerFactory, "Global");
 
             // 서버 데이터 로드
             app.Services.GetService<IFileResourceService>()!.LoadTableData();

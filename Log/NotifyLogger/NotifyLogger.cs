@@ -15,14 +15,17 @@ namespace Log
         }
 
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull
-            => null;
+            => default!;
 
         public bool IsEnabled(LogLevel logLevel)
-            => logLevel >= LogLevel.Critical;
+            => true;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            _netNotification.SendNotification(formatter(state, exception));
+            if (logLevel != LogLevel.Critical)
+                return;
+
+            _netNotification.SendNotification(eventId.Id, formatter(state, exception));
         }
     }
 }

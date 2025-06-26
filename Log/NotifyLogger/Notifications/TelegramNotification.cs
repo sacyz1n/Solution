@@ -55,17 +55,24 @@ namespace Log
             }
         }
 
-        public async Task SendNotification(string message)
+        public async Task SendNotification(int eventId, string message)
         {
             try
             {
-                var sendMessageUrl = $"{_httpClient.BaseAddress}/sendMessage";
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>
+                var sendMessageUrl = $"{_httpClient.BaseAddress}/sendMessage?chat_id={_chatId}&text={message}";
+
+                if (LoggerExtensions.NotifyLoggerResultSync == eventId)
                 {
-                    { "chat_id", _chatId }, // 채팅 ID
-                    { "text", message }, // 메시지 내용
-                });
-                await _httpClient.PostAsync(sendMessageUrl, content);
+                    _httpClient.GetAsync(sendMessageUrl)
+                               .ConfigureAwait(false)
+                               .GetAwaiter()
+                               .GetResult();
+                }
+                else
+                {
+                    await _httpClient.GetAsync(sendMessageUrl)
+                               .ConfigureAwait(false);
+                }
             }
             catch (Exception ex)
             {

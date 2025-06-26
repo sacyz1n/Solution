@@ -2,6 +2,7 @@
 {
     public interface INotifiication
     {
-        Task SendNotification(string message);
+
+        Task SendNotification(int eventId, string message);
     }
 }

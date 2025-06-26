@@ -19,8 +19,13 @@ namespace Server.Shared.Services
 
         public ValueTask LoadTableData()
         {
-            FileResource.Loader.LoadSingleTable<GameConfig>("./Resources/Config/GameConfig.json");
-            FileResource.Loader.LoadListTable<ItemFlyweight.ItemList, ItemFlyweight>("./Resources/Item/ItemList.json", "./Resources/Item/Item_{0}.json");
+            //FileResource.Loader.LoadSingleTable<GameConfig>("./Resources/Config/GameConfig.json");
+            FileResource.Loader.LoadSingleTable<CharacterConfig>("./Resources/Config/CharacterConfig.json");
+            //FileResource.Loader.LoadListTable<ItemFlyweight.ItemList, ItemFlyweight>("./Resources/Item/ItemList.json", "./Resources/Item/Item_{0}.json");
+            _logger.LogInformation("FileResourceService - LoadTableData completed.");
+
+            FileResource.Loader.ProcessAll();
+            _logger.LogInformation("FileResourceService - ProcessAll completed.");
 
             return ValueTask.CompletedTask;
         }

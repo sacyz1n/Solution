@@ -1,14 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Log
 {
     public static class DEV
     {
+        public static string GetStackTrace(int skipStackDepth)
+        {
+            // 성능 많이 잡아먹음!!
+            var stackTrace = new StackTrace(true);
+            var stringBuilder = new StringBuilder();
+            for (int i = skipStackDepth; i < stackTrace.FrameCount; i++)
+            {
+                var sf = stackTrace.GetFrame(i);
+                stringBuilder.AppendLine();
+                stringBuilder.Append($"at {sf?.GetMethod()} in {sf?.GetFileName()}:line {sf?.GetFileLineNumber()}");
+            }
+            return stringBuilder.ToString();
+        }
 
         [Conditional("DEBUG")]
         [Conditional("RELEASE")]
@@ -17,6 +27,10 @@ namespace Log
             if (condition)
                 return;
 
+            var stackTrace = GetStackTrace(stackTraceSkipDepth);
+            LogManager.Logger.LogCritical(new EventId(LoggerExtensions.NotifyLoggerResultSync), $"{message}, CallStack:{stackTrace}");
+            Trace.Assert(condition, $"{message} [{stackTrace}]");
+            Environment.Exit(1);
         }
     }
 }

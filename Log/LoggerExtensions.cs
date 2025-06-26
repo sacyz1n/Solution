@@ -4,6 +4,7 @@ namespace Log
 {
     public static class LoggerExtensions
     {
+        internal const int NotifyLoggerResultSync = 1000;
         public static ILoggingBuilder AddNotifyLogger(this ILoggingBuilder builder, INotifiication netNotification)
         {
             if (builder == null)

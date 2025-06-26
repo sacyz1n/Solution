@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using Log;
+using Microsoft.Extensions.Logging;
+using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 
 namespace FileResource
 {
@@ -13,7 +16,10 @@ namespace FileResource
             void PostProcess();
         }
 
-        private static Action<Exception> _exceptionHandler = null;
+        private static Action<Exception> _exceptionHandler = (ex) =>
+            {
+                DEV.CHECK(false, $"[FileResource.Loader] Exception occurred during data processing. Message:{ex?.Message}");
+            };
 
         private static List<IDataProcessing> _dataProcessingList = new();
 
@@ -22,11 +28,17 @@ namespace FileResource
             
         };
 
-        public static void SetExceptionHandler(Action<Exception> exceptionAction)
-            => _exceptionHandler = exceptionAction;
-
         private static void handleException(Exception exception)
             => _exceptionHandler?.Invoke(exception);
+
+        public static void ProcessAll()
+        {
+            foreach (var data in _dataProcessingList)
+                data.PreProcess();
+
+            foreach (var data in _dataProcessingList)
+                data.PostProcess();
+        }
 
         /// <summary>
         /// 단일 레코드를 로드하는 메서드입니다.

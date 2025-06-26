@@ -1,4 +1,5 @@
-﻿using System.Collections.Frozen;
+﻿using Log;
+using System.Collections.Frozen;
 using System.Text.Json.Serialization;
 
 namespace Server.Shared.Resources.Config
@@ -25,7 +26,7 @@ namespace Server.Shared.Resources.Config
 
         public void PreProcess()
         {
-
+            DEV.CHECK(LevelInfos is not null, $"CharacterConfig - LevelInfos is null.");
         }
     }
 }
