@@ -6,7 +6,7 @@ namespace Server.Shared.Services
 {
     public interface IFileResourceService
     {
-        ValueTask LoadTableData();
+        ValueTask LoadTableData(string baseFilePath);
     }
 
     public class FileResourceService : IFileResourceService
@@ -17,15 +17,17 @@ namespace Server.Shared.Services
             this._logger = logger;
         }
 
-        public ValueTask LoadTableData()
+        public ValueTask LoadTableData(string baseFilePath)
         {
+            FileResource.Loader.Initialize(baseFilePath, _logger);
+
             //FileResource.Loader.LoadSingleTable<GameConfig>("./Resources/Config/GameConfig.json");
-            FileResource.Loader.LoadSingleTable<CharacterConfig>("./Resources/Config/CharacterConfig.json");
+            FileResource.Loader.LoadSingleTable<CharacterConfig>($"Config/CharacterConfig.json");
             //FileResource.Loader.LoadListTable<ItemFlyweight.ItemList, ItemFlyweight>("./Resources/Item/ItemList.json", "./Resources/Item/Item_{0}.json");
-            _logger.LogInformation("FileResourceService - LoadTableData completed.");
+            _logger.LogInformation("Load ServerData - Completed.");
 
             FileResource.Loader.ProcessAll();
-            _logger.LogInformation("FileResourceService - ProcessAll completed.");
+            _logger.LogInformation("Load ServerData - Process Completed.");
 
             return ValueTask.CompletedTask;
         }

@@ -2,6 +2,7 @@ using GameService.Formatters;
 using GameService.Services;
 using Log;
 using Server.Shared.Services;
+using Utf8StringInterpolation;
 using ZLogger;
 using ZLogger.Providers;
 
@@ -18,11 +19,12 @@ namespace GameService
     {
         public static void Main(string[] args)
         {
+            var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
             {
                 Args = args,
                 ApplicationName = "GameService",
-                ContentRootPath = AppDomain.CurrentDomain.BaseDirectory,
+                ContentRootPath = baseDirectory,
             });
 
             Console.WriteLine($"OS Version : {System.Environment.OSVersion}");
@@ -42,16 +44,25 @@ namespace GameService
             builder.Services.AddControllers();
 
             builder.Logging.ClearProviders();
-            builder.Logging.AddZLoggerConsole(configure =>
-            {
-                configure.UseFormatter(() => new Log.ZLoggerFormatter());
-            });
+            builder.Logging.AddZLoggerConsole(options =>
+                options.UsePlainTextFormatter(formatter =>
+                {
+                    formatter.SetPrefixFormatter($"{0}|{1:short}|", (in MessageTemplate template, in LogInfo info) => template.Format(info.Timestamp, info.LogLevel));
+                    formatter.SetSuffixFormatter($" ({0})", (in MessageTemplate template, in LogInfo info) => template.Format(info.Category));
+                    formatter.SetExceptionFormatter((writer, ex) => Utf8String.Format(writer, $"{ex.Message}"));
+                })
+            );
             builder.Logging.AddZLoggerRollingFile(configure =>
             {
-                configure.FilePathSelector = (now, index) => $"{Environment.CurrentDirectory}/logs/{now:yyyyMMdd}_{index}.log";
+                configure.FilePathSelector = (now, index) => $"{baseDirectory}/logs/{now:yyyyMMdd}_{index}.log";
                 configure.RollingInterval = RollingInterval.Day;
-                configure.RollingSizeKB = 1024 * 1024; // 1GB
-                configure.UseFormatter(() => new Log.ZLoggerFormatter());
+                configure.RollingSizeKB = 1024 * 64; // 64MB
+                configure.UsePlainTextFormatter(formatter =>
+                {
+                    formatter.SetPrefixFormatter($"{0}|{1:short}|", (in MessageTemplate template, in LogInfo info) => template.Format(info.Timestamp, info.LogLevel));
+                    formatter.SetSuffixFormatter($" ({0})", (in MessageTemplate template, in LogInfo info) => template.Format(info.Category));
+                    formatter.SetExceptionFormatter((writer, ex) => Utf8String.Format(writer, $"{ex.Message}"));
+                });
             });
             builder.Logging.AddNotifyLogger(new TelegramNotification());
 
@@ -69,8 +80,10 @@ namespace GameService
             var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
             LogManager.SetLoggerFactory(loggerFactory, "Global");
 
+
             // 서버 데이터 로드
-            app.Services.GetService<IFileResourceService>()!.LoadTableData();
+            var serverDataPath = Path.Combine(Environment.CurrentDirectory, "../ServerData");
+            app.Services.GetService<IFileResourceService>()!.LoadTableData(serverDataPath);
 
             //app.UseHttpsRedirection();
             app.UseRouting();
