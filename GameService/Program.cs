@@ -27,8 +27,17 @@ namespace GameService
                 ContentRootPath = baseDirectory,
             });
 
+            if (builder.Configuration["Environment"] == null)
+            {
+                Console.WriteLine("Not found Environment. Use --environment");
+                return;
+            }
+
+            Environment.SetEnvironmentVariable("Env", builder.Environment.EnvironmentName);
+
             Console.WriteLine($"OS Version : {System.Environment.OSVersion}");
-            Console.WriteLine($"Environment:{System.Environment.UserName}");
+            Console.WriteLine($"UserName:{System.Environment.UserName}");
+            Console.WriteLine($"Environment:{Environment.GetEnvironmentVariable("Env")}");
 
             var configuration = builder.Configuration;
             builder.Services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
@@ -80,9 +89,8 @@ namespace GameService
             var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
             LogManager.SetLoggerFactory(loggerFactory, "Global");
 
-
             // 서버 데이터 로드
-            var serverDataPath = Path.Combine(Environment.CurrentDirectory, "../ServerData");
+            var serverDataPath = Path.Combine(Environment.CurrentDirectory, builder.Configuration["ServerDataPath"]!);
             app.Services.GetService<IFileResourceService>()!.LoadTableData(serverDataPath);
 
             //app.UseHttpsRedirection();
