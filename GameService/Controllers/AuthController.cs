@@ -14,17 +14,20 @@ namespace GameService.Controllers
         private readonly IConfiguration _configuration;
         private readonly ISessionService _sessionService;
         private readonly IGameDbService _gameDbService;
+        private readonly IGlobalDbService _globalDbService;
 
         public AuthController(
             ILogger<AuthController> logger, 
             IConfiguration configuration, 
             ISessionService sessionService,
-            IGameDbService gameDbService)
+            IGameDbService gameDbService,
+            IGlobalDbService globalDbService)
         {
             this._logger = logger;
             this._configuration = configuration;
             this._sessionService = sessionService;
             this._gameDbService = gameDbService;
+            this._globalDbService = globalDbService;
         }
 
         /// <summary>
@@ -46,8 +49,29 @@ namespace GameService.Controllers
             var output = new LoginResponse();
             _logger.LogInformation("Login request received");
 
-            await _gameDbService.GetAccountInfo(input.TestValue01);
+            var accountInfo = await _globalDbService.GetAccountInfo(input.MemberId);
 
+            // 새 계정 생성
+            if (accountInfo == null)
+            {
+                var newAccount = new Repository.GlobalDB.AccountInfo()
+                {
+                    MemeberId = input.MemberId,
+                };
+
+                var insertResult = await _globalDbService.InsertAccountInfo(newAccount);
+                if (!insertResult)
+                {
+                    _logger.LogError($"Failed to create new account for MemberId: {input.MemberId}");
+                    return output.SetErrorCode(ErrorCodes.LOGIN_ERROR);
+                }
+            }
+            else
+            {
+
+            }
+
+            output.MemberId = input.MemberId;
             return output;
         }
     }

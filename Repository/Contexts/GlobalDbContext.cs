@@ -1,7 +1,7 @@
-﻿using Repository.GlobalDB;
+﻿using Microsoft.EntityFrameworkCore;
+using Repository.GlobalDB;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;

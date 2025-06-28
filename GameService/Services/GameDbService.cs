@@ -8,7 +8,6 @@ namespace GameService.Services
 {
     public interface IGameDbService
     {
-        public Task GetAccountInfo(long accountNo);
     }
 
     public class GameDbService 
@@ -19,18 +18,5 @@ namespace GameService.Services
             : base(Log.LogManager.LoggerFactory, "")
         {
         }
-
-        public async Task GetAccountInfo(long accountNo)
-        {
-            var result = await QueryFactory.Query(GlobalDB<AccountInfo>.Get())
-                                           .Where(nameof(AccountInfo.Id), accountNo)
-                                           .FirstOrDefaultAsync<AccountInfo>();
-
-            if (result == null)
-            {
-
-            }
-        }
-
     }
 }

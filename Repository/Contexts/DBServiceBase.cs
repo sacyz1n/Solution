@@ -50,6 +50,7 @@ namespace Repository.Contexts
             var options = new DbContextOptionsBuilder<DbContext>()
                     .UseMySql(_connectionString, null, builder =>
                     {
+                        // Collection 을 파라미터로 사용 가능하도록 설정
                         builder.TranslateParameterizedCollectionsToConstants();
                         builder.EnablePrimitiveCollectionsSupport();
                     })

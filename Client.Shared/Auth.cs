@@ -1,25 +1,27 @@
 ﻿using MemoryPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Client.Shared
 {
-    [MemoryPackable]
-    public partial class LoginRequest
+    public enum E_PlatformType
     {
-        public long TestValue01 { get; set; } = 0;
-        public string TestValue02 { get; set; } = string.Empty;
+        None = 0,
+        GOOGLE = 1,
+        APPLE = 2,
+        ONESTORE = 3,
+
+        DEV = 99,
     }
 
     [MemoryPackable]
-    public partial class LoginResponse
+    public partial class LoginRequest
     {
-        public int TestValue01 { get; set; } = 0;
+        public string MemberId { get; set; } = string.Empty;
+    }
 
-        public long TestValue02 { get; set; } = 0;
+    [MemoryPackable]
+    public partial class LoginResponse : BaseResponse
+    {
+        public long AccountNo { get; set; } = 0;
+        public string MemberId { get; set; } = string.Empty;
     }
 }

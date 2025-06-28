@@ -9,6 +9,6 @@ namespace Repository.GlobalDB
     {
         public long AccountNo { get; set; } = 0;
 
-        public string Id { get; set; } = string.Empty;
+        public string MemeberId { get; set; } = string.Empty;
     }
 }
