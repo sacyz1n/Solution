@@ -13,12 +13,18 @@ namespace GameService.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IConfiguration _configuration;
         private readonly ISessionService _sessionService;
+        private readonly IGameDbService _gameDbService;
 
-        public AuthController(ILogger<AuthController> logger, IConfiguration configuration, ISessionService sessionService)
+        public AuthController(
+            ILogger<AuthController> logger, 
+            IConfiguration configuration, 
+            ISessionService sessionService,
+            IGameDbService gameDbService)
         {
             this._logger = logger;
             this._configuration = configuration;
             this._sessionService = sessionService;
+            this._gameDbService = gameDbService;
         }
 
         /// <summary>
@@ -35,12 +41,12 @@ namespace GameService.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("/login")]
-        public LoginResponse Login([FromBody] LoginRequest input)
+        public async Task<LoginResponse> Login([FromBody] LoginRequest input)
         {
             var output = new LoginResponse();
             _logger.LogInformation("Login request received");
 
-            
+            await _gameDbService.GetAccountInfo(input.TestValue01);
 
             return output;
         }
