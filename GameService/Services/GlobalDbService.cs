@@ -39,9 +39,6 @@ namespace GameService.Services
                                            .Where(nameof(AccountInfo.MemeberId), memberId)
                                            .FirstOrDefaultAsync<AccountInfo>();
 
-            if (result == null)
-                return null;
-
             return result;
         }
 

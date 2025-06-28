@@ -5,11 +5,11 @@ namespace Client.Shared
 {
     public abstract class BaseResponse
     {
-        public int ErrorCode { get; private set; } = ErrorCodes.SUCCESS;
+        public int ErrorCode { get; set; } = ErrorCodes.SUCCESS;
 
-        public string ErrorDesc { get; private set; } = string.Empty;
+        public string ErrorDesc { get; set; } = string.Empty;
 
-        internal void SetErrorCode(int errorCode, string errorDesc)
+        internal void SetErrorCodeAndDesc(int errorCode, string errorDesc)
         {
             this.ErrorCode = errorCode;
             this.ErrorDesc = errorDesc;
@@ -23,7 +23,7 @@ namespace Client.Shared
         {
             var logger = Log.LogManager.Logger;
 
-            output.SetErrorCode(
+            output.SetErrorCodeAndDesc(
                 errorCode: errorCode,
                 errorDesc: string.Format("{0:X}.{1}", memberName, sourceLineNumber));
 

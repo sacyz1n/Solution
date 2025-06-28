@@ -42,8 +42,9 @@ namespace GameService
             var configuration = builder.Configuration;
             builder.Services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
 
+            builder.Services.AddTransient<IGameDbService, GameDbService>();
+            builder.Services.AddTransient<IGlobalDbService, GlobalDbService>();
             builder.Services.AddSingleton<IFileResourceService, FileResourceService>();
-            builder.Services.AddSingleton<IDbAccessService, DbAccessService>();
             builder.Services.AddSingleton<ISessionService, SessionService>();
             builder.Services.AddControllers(options =>
             {

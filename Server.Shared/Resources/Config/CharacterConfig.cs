@@ -31,7 +31,7 @@ namespace Server.Shared.Resources.Config
             foreach (var levelInfo in LevelInfos!)
             {
                 DEV.CHECK(levelInfo.Level > 0, $"CharacterConfig - LevelInfo.Level must be greater than 0. Level:{levelInfo.Level}");
-                DEV.CHECK(levelInfo.Exp > 0, $"CharacterConfig - LevelInfo.Exp must be greater than or equal to 0. Exp:{levelInfo.Exp}");
+                DEV.CHECK(levelInfo.Exp >= 0, $"CharacterConfig - LevelInfo.Exp must be greater than or equal to 0. Exp:{levelInfo.Exp}");
             }
         }
     }
