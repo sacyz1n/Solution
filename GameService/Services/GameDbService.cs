@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Repository;
 using Repository.GlobalDB;
 using SqlKata.Execution;
@@ -14,8 +15,10 @@ namespace GameService.Services
         : Repository.Contexts.DbServiceBase<Repository.Contexts.GameDbContext>
         , IGameDbService
     {
-        public GameDbService(ILogger<GameDbService> logger, IConfiguration configuration)
-            : base(Log.LogManager.LoggerFactory, "")
+        public GameDbService(ILogger<GameDbService> logger)
+            : base(Log.LogManager.LoggerFactory, 
+                  Repository.Contexts.ConnectionString.GetConnectionString(
+                      Repository.Contexts.Constants.GameDB))
         {
         }
     }

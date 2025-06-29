@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 
 namespace Repository.Contexts
 {
-    public class GameDbContext : DbContext
+    public class GameDbContext : BaseDbContext
     {
-
+        public GameDbContext(DbContextOptions options) : base(options)
+        {
+        }
     }
 }

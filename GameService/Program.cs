@@ -10,9 +10,11 @@ namespace GameService
 {
     public class ConnectionStrings
     {
-        public string Redis { get; private set; } = string.Empty;
+        public string Redis { get; set; } = string.Empty;
 
-        public string GameDB { get; private set; } = string.Empty;
+        public string GameDB { get; set; } = string.Empty;
+
+        public string GlobalDB { get; set; } = string.Empty;
     }
 
     public class Program
@@ -40,7 +42,7 @@ namespace GameService
             Console.WriteLine($"Environment:{Environment.GetEnvironmentVariable("Env")}");
 
             var configuration = builder.Configuration;
-            builder.Services.Configure<ConnectionStrings>(configuration.GetSection(nameof(ConnectionStrings)));
+            LoadConnectionStrings(configuration);
 
             builder.Services.AddTransient<IGameDbService, GameDbService>();
             builder.Services.AddTransient<IGlobalDbService, GlobalDbService>();
@@ -99,6 +101,27 @@ namespace GameService
             app.UseAuthorization();
             app.MapControllers();
             app.Run();
+        }
+
+        internal static void LoadConnectionStrings(IConfiguration configuration)
+        {
+            var connectionStrings = new ConnectionStrings();
+            configuration.GetSection(nameof(ConnectionStrings)).Bind(connectionStrings);
+
+            if (string.IsNullOrEmpty(connectionStrings.Redis))
+                throw new ArgumentException("Redis connection string is not set.");
+
+            if (string.IsNullOrEmpty(connectionStrings.GameDB))
+                throw new ArgumentException("GameDB connection string is not set.");
+
+            if (string.IsNullOrEmpty(connectionStrings.GlobalDB))
+                throw new ArgumentException("GlobalDB connection string is not set.");
+
+            Repository.Contexts.ConnectionString.s_ReloadConnectionString = 
+                () => LoadConnectionStrings(configuration);
+
+            Repository.Contexts.ConnectionString.Load(Repository.Contexts.Constants.GameDB, connectionStrings.GameDB);
+            Repository.Contexts.ConnectionString.Load(Repository.Contexts.Constants.GlobalDB, connectionStrings.GlobalDB);
         }
     }
 }

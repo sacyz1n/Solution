@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
-using MySqlConnector;
 
 namespace Repository.Contexts
 {
-    public abstract class DbServiceBase<TDbContext> where TDbContext : DbContext, new()
+    public abstract class DbServiceBase<TDbContext> where TDbContext : BaseDbContext
     {
         private readonly ILoggerFactory _loggerFactory;
 
@@ -37,6 +35,7 @@ namespace Repository.Contexts
         protected DbServiceBase(ILoggerFactory loggerFactory, string connectionString)
         {
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(_loggerFactory));
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
 
         protected TDbContext GetDbContext()
@@ -47,8 +46,8 @@ namespace Repository.Contexts
             if (string.IsNullOrWhiteSpace(_connectionString))
                 return null;
 
-            var options = new DbContextOptionsBuilder<DbContext>()
-                    .UseMySql(_connectionString, null, builder =>
+            var options = new DbContextOptionsBuilder<TDbContext>()
+                    .UseMySql(_connectionString, ConnectionString.s_ServerVersion, builder =>
                     {
                         // Collection 을 파라미터로 사용 가능하도록 설정
                         builder.TranslateParameterizedCollectionsToConstants();

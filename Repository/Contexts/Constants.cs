@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace Repository.Contexts
 {
-    public class Constants
+    public static class Constants
     {
         public const string GameDB = "gamedb";
 
         public const string GlobalDB = "globaldb";
+
+        
+        //private static Con<string, >
     }
 }

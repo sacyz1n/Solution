@@ -42,6 +42,7 @@ namespace GameService.Formatters
             }
             catch (Exception ex)
             {
+                Log.LogManager.Logger.LogError(ex, "MemoryPackInputFormatter ReadRequestBodyAsync Error");
                 return await InputFormatterResult.FailureAsync();
             }
         }

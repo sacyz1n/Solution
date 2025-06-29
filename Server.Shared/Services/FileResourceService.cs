@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Server.Shared.Resources.Config;
-using Server.Shared.Resources.Item;
 
 namespace Server.Shared.Services
 {

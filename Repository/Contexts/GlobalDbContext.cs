@@ -1,15 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repository.GlobalDB;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Repository.Contexts
 {
-    public class GlobalDbContext : DbContext
+    public partial class GlobalDbContext : BaseDbContext
     {
+        public GlobalDbContext(DbContextOptions<GlobalDbContext> options)
+            : base(options)
+        {
+        }
+
         public DbSet<AccountInfo> account_info { get; set; } = null!;
     }
 }
