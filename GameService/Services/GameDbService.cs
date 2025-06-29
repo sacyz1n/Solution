@@ -7,11 +7,11 @@ using SqlKata.Execution;
 
 namespace GameService.Services
 {
-    public interface IGameDbService
+    public partial interface IGameDbService
     {
     }
 
-    public class GameDbService 
+    public partial class GameDbService 
         : Repository.Contexts.DbServiceBase<Repository.Contexts.GameDbContext>
         , IGameDbService
     {

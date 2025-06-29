@@ -12,7 +12,6 @@ namespace Repository.Contexts
 
         public const string GlobalDB = "globaldb";
 
-        
-        //private static Con<string, >
+        public const string GlobalLogDB = "globallogdb";
     }
 }
