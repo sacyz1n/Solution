@@ -1,7 +1,4 @@
-﻿
-
-
-using Client.Shared;
+﻿using Client.Shared;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -43,7 +40,8 @@ namespace ClientTest
                 var responseContent = await response.Content.ReadAsStringAsync();
                 var loginResponse = JsonSerializer.Deserialize<LoginResponse>(responseContent);
 
-                int i = 0;
+                Assert.IsNotNull(loginResponse, "LoginResponse should not be null");
+                Assert.IsTrue(loginResponse.ErrorCode == ErrorCodes.SUCCESS, "Login should be successful");
             }
             catch (Exception ex)
             {
