@@ -1,4 +1,5 @@
 ﻿using Client.Shared;
+using GameService.Services;
 using MemoryPack;
 
 namespace GameService.Middlewares
@@ -13,30 +14,14 @@ namespace GameService.Middlewares
     {
         private readonly RequestDelegate _next = null;
 
-        public AuthenticationMiddleware(RequestDelegate next)
+        private readonly IMemoryDbService _memoryDbService = null;
+
+        public AuthenticationMiddleware(RequestDelegate next, IMemoryDbService memoryDbService)
         {
             this._next = next;
+            this._memoryDbService = memoryDbService;
         }
 
-        //public static async Task<AuthCheck> ReadMemoryPackFromBody(HttpRequest request)
-        //{
-        //    using var ms = new MemoryStream();
-        //    await request.Body.CopyToAsync(ms);
-
-        //    ReadOnlySpan<byte> span = ms.ToArray();
-
-        //    // MemoryPack Union Tag는 첫 바이트에 존재
-        //    byte tag = span[0];
-
-        //    if (!_unionTypeMap.TryGetValue(tag, out var actualType))
-        //    {
-        //        throw new InvalidOperationException($"Unknown MemoryPack Union tag: {tag}");
-        //    }
-
-        //    object? obj = MemoryPackSerializer.Deserialize(actualType, span);
-
-        //    return (obj as AuthCheck)!;
-        //}
 
         public async Task InvokeAsync(HttpContext context)
         {
@@ -54,7 +39,7 @@ namespace GameService.Middlewares
 
             if (!context.Request.Headers.TryGetValue("Authorization", out var header))
             {
-                Log.LogManager.Logger.LogError("AuthenticationMiddleware: AuthCheck is null");
+                Log.LogManager.Logger.LogError("AuthenticationMiddleware: Invalid Authorization");
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 return;
             }
@@ -83,9 +68,26 @@ namespace GameService.Middlewares
             }
 
             // 토큰 검증
+            var authResult = await _memoryDbService.IsAuthorizedUser(accountNo, token);
 
+            if (authResult != ErrorCodes.SUCCESS)
+            {
+                Log.LogManager.Logger.LogError($"AuthenticationMiddleware: Unauthorized access for AccountNo: {accountNo}");
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
+            // Redis Lock 
+            if (await _memoryDbService.TryLockUserRequest(accountNo) == false)
+            {
+                Log.LogManager.Logger.LogError($"AuthenticationMiddleware: User request lock failed for AccountNo: {accountNo}");
+                context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                return;
+            }
 
             await this._next(context);
+
+            await _memoryDbService.UnlockUserRequest(accountNo);
         }
     }
 }
