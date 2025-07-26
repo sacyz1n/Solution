@@ -1,0 +1,11 @@
+﻿@echo Start Environment.bat
+
+rem 로컬 패치툴 경로
+SET SourcePath=E:\Git\IdleHeroServer
+SET DestPath=E:\Git\IdleHeroServer
+
+rem 포메터 생성툴 경로
+SET MSBUILDDIR=C:\Program Files\Microsoft Visual Studio\2022\Professional\Msbuild\Current\Bin
+SET ZipOutputPath=.
+
+@echo End Environment.bat

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repository.GlobalDB
@@ -9,6 +10,14 @@ namespace Repository.GlobalDB
     {
         public long AccountNo { get; set; } = 0;
 
-        public string MemeberId { get; set; } = string.Empty;
+        public string MemberId { get; set; } = string.Empty;
+
+        public byte PlatformType { get; set; }
+
+        [Column(TypeName = "DATETIME")]
+        public DateTime CreateTime { get; set; }
+
+        [Column(TypeName = "DATETIME")]
+        public DateTime LoginTime { get; set; }
     }
 }

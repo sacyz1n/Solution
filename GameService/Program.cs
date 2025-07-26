@@ -1,4 +1,5 @@
 using GameService.Formatters;
+using GameService.Middlewares;
 using GameService.Services;
 using Log;
 using Server.Shared.Services;
@@ -8,10 +9,10 @@ using ZLogger.Providers;
 
 namespace GameService
 {
+
     public class ConnectionStrings
     {
         public string Redis { get; set; } = string.Empty;
-
         public string GameDB { get; set; } = string.Empty;
 
         public string GlobalDB { get; set; } = string.Empty;
@@ -37,17 +38,13 @@ namespace GameService
 
             Environment.SetEnvironmentVariable("Env", builder.Environment.EnvironmentName);
 
-            Console.WriteLine($"OS Version : {System.Environment.OSVersion}");
-            Console.WriteLine($"UserName:{System.Environment.UserName}");
-            Console.WriteLine($"Environment:{Environment.GetEnvironmentVariable("Env")}");
-
             var configuration = builder.Configuration;
-            LoadConnectionStrings(configuration);
+            var connectionStrings = LoadConnectionStrings(configuration);
 
             builder.Services.AddTransient<IGameDbService, GameDbService>();
             builder.Services.AddTransient<IGlobalDbService, GlobalDbService>();
             builder.Services.AddSingleton<IFileResourceService, FileResourceService>();
-            builder.Services.AddSingleton<ISessionService, SessionService>();
+            builder.Services.AddSingleton<IMemoryDbService, MemoryDbService>();
             builder.Services.AddControllers(options =>
             {
                 options.OutputFormatters.Insert(0, new MemoryPackOutputFormatter());
@@ -92,24 +89,30 @@ namespace GameService
             var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
             LogManager.SetLoggerFactory(loggerFactory, "Global");
 
+            LogManager.Logger.LogInformation($"OS Version : {System.Environment.OSVersion}");
+            LogManager.Logger.LogInformation($"UserName:{System.Environment.UserName}");
+            LogManager.Logger.LogInformation($"Environment:{Environment.GetEnvironmentVariable("Env")}");
+
+            // Redis 설정
+            var memoryDbService = app.Services.GetRequiredService<IMemoryDbService>() as MemoryDbService;
+            memoryDbService!.Initialize(connectionStrings.Redis);
+
             // 서버 데이터 로드
             var serverDataPath = Path.Combine(Environment.CurrentDirectory, builder.Configuration["ServerDataPath"]!);
             app.Services.GetService<IFileResourceService>()!.LoadTableData(serverDataPath);
 
-            //app.UseHttpsRedirection();
+            // 인증 미들웨어 등록
+            app.UseMiddleware<AuthenticationMiddleware>(); 
             app.UseRouting();
-            app.UseAuthorization();
             app.MapControllers();
             app.Run();
         }
 
-        internal static void LoadConnectionStrings(IConfiguration configuration)
+
+        internal static ConnectionStrings LoadConnectionStrings(IConfiguration configuration)
         {
             var connectionStrings = new ConnectionStrings();
             configuration.GetSection(nameof(ConnectionStrings)).Bind(connectionStrings);
-
-            if (string.IsNullOrEmpty(connectionStrings.Redis))
-                throw new ArgumentException("Redis connection string is not set.");
 
             if (string.IsNullOrEmpty(connectionStrings.GameDB))
                 throw new ArgumentException("GameDB connection string is not set.");
@@ -122,6 +125,8 @@ namespace GameService
 
             Repository.Contexts.ConnectionString.Load(Repository.Contexts.Constants.GameDB, connectionStrings.GameDB);
             Repository.Contexts.ConnectionString.Load(Repository.Contexts.Constants.GlobalDB, connectionStrings.GlobalDB);
+
+            return connectionStrings;
         }
     }
 }

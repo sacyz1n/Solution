@@ -5,6 +5,8 @@ namespace Repository.Contexts
 {
     public partial class GlobalDbContext : BaseDbContext
     {
+        public GlobalDbContext() { }
+
         public GlobalDbContext(DbContextOptions<GlobalDbContext> options)
             : base(options)
         {

@@ -2,6 +2,17 @@
 
 namespace Client.Shared
 {
+    public static class MediaType
+    {
+        public const E_SupportMediaType UseMediaType = E_SupportMediaType.MemoryPack;
+
+        public enum E_SupportMediaType
+        {
+            MemoryPack = 0,
+            Json = 1,
+        }
+    }
+
     public enum E_PlatformType
     {
         None = 0,
@@ -16,6 +27,8 @@ namespace Client.Shared
     public partial class LoginRequest
     {
         public string MemberId { get; set; } = string.Empty;
+
+        public E_PlatformType PlatformType { get; set; } = E_PlatformType.None;
     }
 
     [MemoryPackable]

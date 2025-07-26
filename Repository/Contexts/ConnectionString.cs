@@ -6,7 +6,6 @@ namespace Repository.Contexts
 {
     public static class ConnectionString
     {
-
         public static MySqlServerVersion s_ServerVersion = new(new Version(8, 0, 34));
 
         private static  ConcurrentDictionary<string, string> s_connectionStrings = new ConcurrentDictionary<string, string>();

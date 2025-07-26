@@ -7,20 +7,18 @@ namespace GameService.Services
     public partial interface IGlobalDbService
     {
         // Create
-        public Task<bool> InsertAccountInfo(AccountInfo accountInfo);
+        public Task<long> InsertAccountInfo(AccountInfo accountInfo);
     }
 
     public partial class GlobalDbService
     {
-        public async Task<bool> InsertAccountInfo(AccountInfo accountInfo)
+        public async Task<long> InsertAccountInfo(AccountInfo accountInfo)
         {
-            var result = await QueryFactory.Query(GlobalDB<AccountInfo>.Get())
-                                           .InsertAsync(accountInfo);
+            var accountNo = await QueryFactory.Query(GlobalDB<AccountInfo>.Get())
+                                           .InsertGetIdAsync<long>(accountInfo);
 
-            if (result != 1)
-                return false;
 
-            return true;
+            return accountNo;
         }
     }
 }

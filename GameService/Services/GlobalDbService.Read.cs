@@ -15,7 +15,7 @@ namespace GameService.Services
         public async Task<AccountInfo> GetAccountInfo(string memberId)
         {
             var result = await QueryFactory.Query(GlobalDB<AccountInfo>.Get())
-                                           .Where(nameof(AccountInfo.MemeberId), memberId)
+                                           .Where(nameof(AccountInfo.MemberId), memberId)
                                            .FirstOrDefaultAsync<AccountInfo>();
 
             return result;
