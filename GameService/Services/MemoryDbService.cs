@@ -2,7 +2,6 @@
 {
     public interface IMemoryDbService
     {
-        // Define methods for memory database operations here
     }
 
     public class MemoryDbService : IMemoryDbService
@@ -14,7 +13,6 @@
         public MemoryDbService(ILogger<MemoryDbService> logger) 
         {
             this._logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null.");
-
         }
 
         public void Initialize(string connectionString)

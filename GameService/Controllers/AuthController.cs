@@ -39,7 +39,7 @@ namespace GameService.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        [Route("/login")]
+        [Route("/Login")]
         public async Task<LoginResponse> Login([FromBody] LoginRequest input)
         {
             var output = new LoginResponse();

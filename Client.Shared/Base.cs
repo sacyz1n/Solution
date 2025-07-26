@@ -1,9 +1,7 @@
-﻿namespace Client.Shared
+﻿using MemoryPack;
+
+namespace Client.Shared
 {
-    public abstract partial class BaseAuthRequest
-    {
-        public string AuthToken { get; set; } = string.Empty;
-    }
 
     public abstract partial class BaseResponse
     {
