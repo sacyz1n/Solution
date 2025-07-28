@@ -67,12 +67,17 @@ namespace GameService.Middlewares
                 return;
             }
 
-            // 토큰 검증
-            var authResult = await _memoryDbService.IsAuthorizedUser(accountNo, token);
-
-            if (authResult != ErrorCodes.SUCCESS)
+            var (isAuthorized, result) = await _memoryDbService.IsAuthorizedUser(accountNo);
+            if (isAuthorized != ErrorCodes.SUCCESS)
             {
                 Log.LogManager.Logger.LogError($"AuthenticationMiddleware: Unauthorized access for AccountNo: {accountNo}");
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return;
+            }
+
+            if (await _memoryDbService.VerifyToken(result, token) == false)
+            {
+                Log.LogManager.Logger.LogError($"AuthenticationMiddleware: invalid token for AccountNo: {accountNo}");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return;
             }

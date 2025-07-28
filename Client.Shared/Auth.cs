@@ -26,6 +26,7 @@ namespace Client.Shared
     [MemoryPackable]
     public partial class LoginRequest
     {
+        public string Token { get; set; } = string.Empty;
         public string MemberId { get; set; } = string.Empty;
 
         public E_PlatformType PlatformType { get; set; } = E_PlatformType.None;

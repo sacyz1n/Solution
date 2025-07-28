@@ -7,7 +7,9 @@ namespace GameService.Services
 {
     public interface IMemoryDbService
     {
-        public Task<int> IsAuthorizedUser(long accountNo, string token);
+        public Task<(int errorCode, AuthorizedUser authorizedUser)> IsAuthorizedUser(long accountNo);
+
+        public ValueTask<bool> VerifyToken(AuthorizedUser value, string token);
 
         public Task<int> RegistAuthorizedUser(long accountNo, AuthorizedUser value);
 
@@ -56,7 +58,7 @@ namespace GameService.Services
             }
         }
 
-        public async Task<int> IsAuthorizedUser(long accountNo, string token)
+        public async Task<(int errorCode, AuthorizedUser result)> IsAuthorizedUser(long accountNo)
         {
             var key = MemoryDbKey.MakeUserAuthKey(accountNo);
 
@@ -64,19 +66,18 @@ namespace GameService.Services
             {
                 var authorizedUser = await getAuthorizedUser(accountNo);
                 if (authorizedUser == null)
-                    return ErrorCodes.USER_NOT_AUTHORIZED;
+                    return (ErrorCodes.USER_NOT_AUTHORIZED, null);
 
-                if (authorizedUser.AuthToken != token)
-                    return ErrorCodes.INVALID_TOKEN;
-
-                return ErrorCodes.SUCCESS;
+                return (ErrorCodes.SUCCESS, authorizedUser);
             }
             catch (Exception)
             {
-                return ErrorCodes.REDIS_EXCEPTION;
+                return (ErrorCodes.REDIS_EXCEPTION, null);
             }
-
         }
+
+        public ValueTask<bool> VerifyToken(AuthorizedUser authorizedUser, string token)
+            => ValueTask.FromResult(authorizedUser?.AuthToken == token);
 
         /// <summary>
         /// 유저의 여러 요청 병렬 처리 방지를 위한 Lock 설정

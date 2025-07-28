@@ -32,6 +32,12 @@ namespace Repository.Contexts
             }
         }
 
+        //protected SqlKata.Execution.QueryFactory QueryFactory(int shardIndex)
+        //{
+
+        //}
+
+
         protected DbServiceBase(ILoggerFactory loggerFactory, string connectionString)
         {
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(_loggerFactory));

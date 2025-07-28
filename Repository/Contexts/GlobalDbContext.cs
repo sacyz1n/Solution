@@ -13,5 +13,7 @@ namespace Repository.Contexts
         }
 
         public DbSet<AccountInfo> account_info { get; set; } = null!;
+
+        public DbSet<DBShardInfo> db_shard_info { get; set; } = null!;
     }
 }

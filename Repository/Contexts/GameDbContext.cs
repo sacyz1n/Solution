@@ -9,5 +9,7 @@ namespace Repository.Contexts
         public GameDbContext(DbContextOptions options) : base(options)
         {
         }
+
+        public DbSet<GameDB.CharacterInfo> character_info { get; set; } = null!;
     }
 }

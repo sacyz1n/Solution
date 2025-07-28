@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="CloudStructures" Version="3.4.1" />
+    <PackageReference Include="FirebaseAdmin" Version="3.3.0" />
     <PackageReference Include="MemoryPack" Version="1.21.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
     <PackageReference Include="MySqlConnector" Version="2.4.0" />
