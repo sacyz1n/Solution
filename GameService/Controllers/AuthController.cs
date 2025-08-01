@@ -2,6 +2,7 @@
 using GameService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Repository.Contexts;
 using Server.Shared.Models.Auth;
 
 namespace GameService.Controllers
@@ -49,11 +50,6 @@ namespace GameService.Controllers
             var output = new LoginResponse();
             _logger.LogInformation("Login request received");
 
-            if (string.IsNullOrEmpty(input.Token) == true)
-            {
-                return output.SetErrorCode(ErrorCodes.INVALID_PARAM);
-            }
-
             if (string.IsNullOrEmpty(input.MemberId) == true)
             {
                 return output.SetErrorCode(ErrorCodes.INVALID_PARAM);
@@ -66,6 +62,7 @@ namespace GameService.Controllers
 
             long accountNo = 0;
             var accountInfo = await _globalDbService.GetAccountInfo(input.MemberId);
+            var now = DateTime.UtcNow;
             // 생성된 계정이 없다면
             if (accountInfo == null)
             {
@@ -77,16 +74,29 @@ namespace GameService.Controllers
                     return output.SetErrorCode(verifyResult);
                 }
 
+                var dbShardInfoTable = FileResource.Storage.Get<Server.Shared.DynamicTables.DBShardInfo>();
+                var gameDBIndex = dbShardInfoTable.GenerateDBIndex(E_DBShardType.GameDB);
+                if (gameDBIndex < 0)
+                {
+                    _logger.LogError($"Failed to generate GameDBIndex for MemberId: {input.MemberId}");
+                    return output.SetErrorCode(ErrorCodes.SERVER_ERROR);
+                }
+
+                var gameLogDBIndex = dbShardInfoTable.GenerateDBIndex(E_DBShardType.GameLogDB);
+                if (gameLogDBIndex < 0)
+                {
+                    _logger.LogError($"Failed to generate GameLogDBIndex for MemberId: {input.MemberId}");
+                    return output.SetErrorCode(ErrorCodes.SERVER_ERROR);
+                }   
+
                 var newAccount = new Repository.GlobalDB.AccountInfo()
                 {
                     MemberId = input.MemberId,
                     PlatformType = (byte)input.PlatformType,
-
-                    // TODO: 특정 규칙을 적용해서 db 샤딩 필요
-                    GameDBIndex = 1,
-                    GameLogDBIndex = 1,
-                    CreateTime = DateTime.UtcNow,
-                    LoginTime = DateTime.UtcNow
+                    GameDBIndex = gameDBIndex,
+                    GameLogDBIndex = gameLogDBIndex,
+                    CreateTime = now,
+                    LoginTime = now
                 };
 
                 var insertResult = await _globalDbService.InsertAccountInfo(newAccount);
@@ -96,18 +106,25 @@ namespace GameService.Controllers
                     return output.SetErrorCode(ErrorCodes.LOGIN_ERROR);
                 }
 
-                _logger.LogInformation($"New account created for MemberId: {input.MemberId}, AccountNo: {insertResult}");
                 accountNo = insertResult;
+
+                if (await Logic.Login.DefaultSetting.Execute(accountNo, newAccount.GameDBIndex, _gameDbService) == false)
+                {
+                    _logger.LogError($"Failed to execute default login settings for AccountNo: {accountNo}");
+                    return output.SetErrorCode(ErrorCodes.SERVER_ERROR);
+                }
+
+                _logger.LogInformation($"New account created for MemberId: {input.MemberId}, AccountNo: {insertResult}");
             }
             else
             {
-                var (isAuthorized, authInfo) = await _memoryDbService.IsAuthorizedUser(accountNo);
+                //var (isAuthorized, authInfo) = await _memoryDbService.IsAuthorizedUser(accountInfo.AccountNo);
 
-                // 이미 로그인 처리되어 있는 경우
-                if (isAuthorized == ErrorCodes.SUCCESS)
-                {
-                    return output.SetErrorCode(ErrorCodes.LOGIN_ALREADY);
-                }
+                //// 이미 로그인 처리되어 있는 경우
+                //if (isAuthorized == ErrorCodes.SUCCESS)
+                //{
+                //    return output.SetErrorCode(ErrorCodes.LOGIN_ALREADY);
+                //}
 
                 // 토큰 검증
                 var verifyResult = await verifyToken((E_PlatformType)accountInfo.PlatformType, input.Token, accountInfo.MemberId);
@@ -126,7 +143,9 @@ namespace GameService.Controllers
                 new AuthorizedUser()
                 {
                     AccountNo = accountNo,
-                    AuthToken = token
+                    AuthToken = token,
+                    GameDBIndex = accountInfo.GameDBIndex,
+                    GameLogDBIndex = accountInfo.GameLogDBIndex,
                 });
 
             if (registResult != ErrorCodes.SUCCESS)
@@ -147,8 +166,14 @@ namespace GameService.Controllers
             {
                 case E_PlatformType.GOOGLE:
                 case E_PlatformType.APPLE:
-                    return await Logic.Login.FirebaseFacade.VerifyToken(token, memberId);
+                    {
+                        if (string.IsNullOrEmpty(token) == true)
+                        {
+                            return ErrorCodes.INVALID_PARAM;
+                        }
 
+                        return await Logic.Login.FirebaseFacade.VerifyToken(token, memberId);
+                    }
                 case E_PlatformType.DEV:
                     return ErrorCodes.SUCCESS;
 

@@ -11,6 +11,10 @@ namespace Server.Shared.Models.Auth
         public long AccountNo { get; set; } = 0;
 
         public string AuthToken { get; set; } = string.Empty;
+
+        public int GameDBIndex { get; set; } = 0;
+
+        public int GameLogDBIndex { get; set; } = 0;
     }
 
     public class RequestLock

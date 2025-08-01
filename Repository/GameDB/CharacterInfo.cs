@@ -18,5 +18,15 @@ namespace Repository.GameDB
 
         [Required]
         public int StageLevel { get; set; }
+
+        [Required]
+        public int AttackLevel { get; set; }
+
+        [Required]
+        public int HPLevel { get; set; }
+
+        [Required]
+        public int DefenseLevel { get; set; }
+
     }
 }

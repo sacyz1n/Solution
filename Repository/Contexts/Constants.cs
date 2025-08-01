@@ -6,6 +6,12 @@
         GameLogDB = 2,
     }
 
+    public enum E_DBType : byte
+    {
+        GlobalDB = 1,
+        GameDB = 2,
+    }
+
     public static class Constants
     {
         public const string GameDB = "gamedb_{0}";
@@ -15,6 +21,9 @@
         public const string GlobalDB = "globaldb";
 
         public const string GlobalLogDB = "globallogdb";
+
+        public static string GetGlobalDB()
+            => GlobalDB;
 
         public static string GetGameDBShard(int shardIndex)
             => string.Format(GameDB, shardIndex);

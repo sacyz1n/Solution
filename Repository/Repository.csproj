@@ -9,10 +9,10 @@
 
   <ItemGroup>
     <Folder Include="GlobalDBMigrations\" />
-    <Folder Include="NoSql\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CloudStructures" Version="3.4.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">

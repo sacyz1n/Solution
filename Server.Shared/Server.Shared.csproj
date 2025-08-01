@@ -11,6 +11,8 @@
     <ProjectReference Include="..\Client.Shared\Client.Shared.csproj" />
     <ProjectReference Include="..\FileResource\FileResource.csproj" />
     <ProjectReference Include="..\Log\Log.csproj" />
+    <ProjectReference Include="..\Repository\Repository.csproj" />
+    <ProjectReference Include="..\ShardLib\ShardLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

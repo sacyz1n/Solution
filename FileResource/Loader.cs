@@ -61,6 +61,8 @@ namespace FileResource
             //TypeInfoResolver = AutoPolymorphicTypeResolver
         };
 
+        public static JsonSerializerOptions DefaultOptions => _jsonSerializerOptions;
+
         public static void Initialize(string baseFilePath, ILogger logger)
         {
             _resourcesProvider = new(baseFilePath);

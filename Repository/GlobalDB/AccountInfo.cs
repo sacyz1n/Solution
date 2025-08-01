@@ -15,9 +15,9 @@ namespace Repository.GlobalDB
 
         public byte PlatformType { get; set; }
 
-        public byte GameDBIndex { get; set; }
+        public int GameDBIndex { get; set; }
 
-        public byte GameLogDBIndex { get; set; }
+        public int GameLogDBIndex { get; set; }
 
         [Column(TypeName = "DATETIME")]
         public DateTime CreateTime { get; set; }

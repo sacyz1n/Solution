@@ -1,5 +1,7 @@
 ﻿using Client.Shared;
 using CloudStructures.Structures;
+using Humanizer.DateTimeHumanizeStrategy;
+using Repository.NoSql;
 using Server.Shared.Models.Auth;
 using StackExchange.Redis;
 
@@ -7,7 +9,7 @@ namespace GameService.Services
 {
     public interface IMemoryDbService
     {
-        public Task<(int errorCode, AuthorizedUser authorizedUser)> IsAuthorizedUser(long accountNo);
+        public Task<(int errorCode, AuthorizedUser result)> IsAuthorizedUser(long accountNo);
 
         public ValueTask<bool> VerifyToken(AuthorizedUser value, string token);
 
@@ -23,32 +25,21 @@ namespace GameService.Services
     {
         private readonly ILogger<MemoryDbService> _logger;
 
-        private CloudStructures.RedisConnection _redisConnection;
+        private readonly IConnector _connector;
 
-        public MemoryDbService(ILogger<MemoryDbService> logger) 
+        public MemoryDbService(ILogger<MemoryDbService> logger, IConnector connector) 
         {
             this._logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger cannot be null.");
+            this._connector = connector;
         }
-
-        public void Initialize(string connectionString)
-        {
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentException("Redis connection string is not set in the configuration.");
-
-            this._redisConnection = new CloudStructures.RedisConnection(
-                new CloudStructures.RedisConfig(null, connectionString)
-                );
-
-            _logger.LogInformation("MemoryDbService initialized successfully.");
-        }
-
+  
         public async Task<int> RegistAuthorizedUser(long accountNo, AuthorizedUser value)
         {
             var key = MemoryDbKey.MakeUserAuthKey(accountNo);
 
             try
             {
-                var handle = new RedisString<AuthorizedUser>(_redisConnection, key, null);
+                var handle = new RedisString<AuthorizedUser>(_connector.Connection, key, null);
                 await handle.SetAsync(value, TimeSpan.FromMinutes(MemoryDbExpireTime.UserAuthMin));
                 return ErrorCodes.SUCCESS;
             }
@@ -88,7 +79,7 @@ namespace GameService.Services
 
             try
             {
-                var handle = new RedisString<RequestLock>(_redisConnection, key, null);
+                var handle = new RedisString<RequestLock>(_connector.Connection, key, null);
 
                 // 이미 있는 Key라면 false
                 if (await handle.SetAsync(new RequestLock { }, TimeSpan.FromSeconds(MemoryDbExpireTime.UserRequestLockSeconds), When.NotExists) == false)
@@ -110,7 +101,7 @@ namespace GameService.Services
 
             try
             {
-                var handle = new RedisString<RequestLock>(_redisConnection, key, null);
+                var handle = new RedisString<RequestLock>(_connector.Connection, key, null);
                 return await handle.DeleteAsync();
             }
             catch (Exception)
@@ -125,7 +116,7 @@ namespace GameService.Services
 
             try
             {
-                var handle = new RedisString<AuthorizedUser>(_redisConnection, key, null);
+                var handle = new RedisString<AuthorizedUser>(_connector.Connection, key, null);
                 var data = await handle.GetAsync();
                 if (data.HasValue == false)
                 {

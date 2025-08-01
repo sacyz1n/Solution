@@ -21,5 +21,7 @@
         public const int FIREBASE_VERIFY_TOKEN_ERROR = 810;
 
         public const int REDIS_EXCEPTION = 900;
+
+        public const int SERVER_ERROR = 1000;
     }
 }
